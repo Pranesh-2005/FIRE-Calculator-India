@@ -350,6 +350,14 @@ def ask_llm(prompt):
 def home():
     return {"msg": "FIRE Backend Running 🇮🇳"}
 
+@app.get("/kaithhealthcheck")
+def kaithhealthcheck():
+    return {"msg": "Kaith Health Check Passed"}
+
+@app.get("/kaithheathcheck")
+def kaithheathcheck():
+    return {"msg": "Kaith Heath Check Passed"}
+
 @app.post("/fire")
 def fire(data: FireInput):
     return calculate_fire(data)
