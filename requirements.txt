@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+pydantic
+requests
+redis
+python-dotenv
+yfinance
+groq
+numpy

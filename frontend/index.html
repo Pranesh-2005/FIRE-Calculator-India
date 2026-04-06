@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIRE Calculator — Your Freedom Number</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Instrument+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --cream:   #f5f0e8;
+  --cream2:  #ede7d9;
+  --ink:     #1a1410;
+  --ink2:    #3d3228;
+  --muted:   #8a7c6e;
+  --forest:  #1e4035;
+  --forest2: #2d5e4e;
+  --forest3: #3a7a61;
+  --terra:   #c1440e;
+  --terra2:  #e05a1e;
+  --gold:    #c9933a;
+  --gold2:   #e8b455;
+  --sage:    #6b8f6e;
+  --rose:    #c45c5c;
+  --border:  rgba(26,20,16,0.12);
+  --shadow:  0 2px 24px rgba(26,20,16,0.08);
+  --r:       14px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Instrument Sans', sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Grain texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.6;
+}
+
+/* ─── TOPBAR ─── */
+.topbar {
+  background: var(--forest);
+  color: var(--cream);
+  padding: 0 clamp(16px, 4vw, 48px);
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.2);
+}
+.topbar-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.fire-icon {
+  width: 28px; height: 28px;
+  background: var(--terra2);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+  animation: flicker 3s ease-in-out infinite;
+}
+@keyframes flicker {
+  0%,100%{transform:scale(1)rotate(-2deg)}
+  33%{transform:scale(1.05)rotate(2deg)}
+  66%{transform:scale(0.97)rotate(-1deg)}
+}
+.topbar-tag {
+  font-size: 11px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 100px;
+  padding: 4px 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* ─── LAYOUT ─── */
+.main {
+  position: relative;
+  z-index: 1;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: clamp(20px, 4vw, 48px) clamp(16px, 4vw, 48px);
+  display: grid;
+  gap: 28px;
+}
+
+/* Hero title */
+.hero {
+  padding: 32px 0 8px;
+}
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(36px, 6vw, 68px);
+  font-weight: 900;
+  line-height: 1.0;
+  color: var(--ink);
+  letter-spacing: -0.03em;
+}
+.hero h1 em {
+  font-style: italic;
+  color: var(--terra);
+}
+.hero p {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 16px;
+  font-weight: 300;
+  max-width: 540px;
+  line-height: 1.6;
+}
+
+/* ─── CARDS ─── */
+.card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: clamp(20px, 3vw, 32px);
+  box-shadow: var(--shadow);
+  animation: slideUp 0.4s ease both;
+}
+@keyframes slideUp {
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.card:nth-child(2){animation-delay:.06s}
+.card:nth-child(3){animation-delay:.12s}
+.card:nth-child(4){animation-delay:.18s}
+
+.section-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-label::after {
+  content:'';
+  flex:1;
+  height:1px;
+  background: var(--border);
+}
+
+.card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: var(--ink);
+}
+
+/* ─── INPUTS GRID ─── */
+.inputs-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 28px;
+}
+
+.input-section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink2);
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--cream2);
+}
+
+.field-group { display: flex; flex-direction: column; gap: 14px; }
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.field label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.field-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--cream);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.field-row:focus-within {
+  border-color: var(--forest3);
+  box-shadow: 0 0 0 3px rgba(58,122,97,0.12);
+  background: #fff;
+}
+.field-prefix {
+  padding: 0 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+  background: transparent;
+  border-right: 1px solid var(--border);
+  height: 44px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.field-row input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 0 14px;
+  height: 44px;
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink);
+  outline: none;
+}
+.field-row input::placeholder { color: #c4b8a8; font-weight: 400; }
+
+/* expense breakdown sub-inputs */
+.sub-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+.sub-field {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--cream);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  transition: background 0.2s;
+}
+.sub-field:focus-within { background: #fff; }
+.sub-label {
+  font-size: 13px;
+  color: var(--ink2);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.sub-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.sub-input {
+  width: 110px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+  background: #fff;
+  outline: none;
+  text-align: right;
+  transition: border-color 0.2s;
+}
+.sub-input:focus { border-color: var(--forest3); }
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: var(--forest);
+  border-radius: 8px;
+  color: var(--cream);
+  margin-top: 6px;
+}
+.total-label { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.8; }
+.total-val { font-size: 18px; font-weight: 600; font-family: 'Playfair Display', serif; }
+
+/* ─── CALCULATE BUTTON ─── */
+.calc-btn {
+  width: 100%;
+  padding: 16px 32px;
+  background: var(--terra);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.01em;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(193,68,14,0.3);
+  margin-top: 8px;
+}
+.calc-btn::before {
+  content:'';
+  position:absolute;
+  inset:0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+}
+.calc-btn:hover { background: var(--terra2); transform: translateY(-1px); box-shadow: 0 8px 28px rgba(193,68,14,0.4); }
+.calc-btn:active { transform: scale(0.98); }
+.calc-btn.loading { opacity: 0.7; pointer-events: none; }
+
+/* ─── RESULT PANEL ─── */
+.result-panel {
+  display: none;
+}
+.result-panel.visible { display: block; }
+
+.result-hero {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.result-stat {
+  background: var(--cream);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  transition: transform 0.2s;
+}
+.result-stat:hover { transform: translateY(-2px); }
+.result-stat.featured {
+  background: var(--forest);
+  color: var(--cream);
+  border-color: var(--forest2);
+}
+.stat-label { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+.result-stat.featured .stat-label { color: rgba(245,240,232,0.65); }
+.stat-val {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--forest);
+  line-height: 1;
+}
+.result-stat.featured .stat-val { color: var(--gold2); }
+.stat-sub { font-size: 12px; color: var(--muted); margin-top: 5px; font-weight: 400; }
+.result-stat.featured .stat-sub { color: rgba(245,240,232,0.5); }
+
+/* ─── CHARTS GRID ─── */
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 24px;
+}
+.chart-wrap {
+  position: relative;
+  height: 280px;
+}
+
+/* ─── MARKET SECTION ─── */
+.market-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.pill {
+  padding: 5px 14px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.pill-up { background: rgba(107,143,110,0.1); color: var(--sage); border-color: rgba(107,143,110,0.25); }
+.pill-down { background: rgba(196,92,92,0.1); color: var(--rose); border-color: rgba(196,92,92,0.25); }
+
+/* ─── AI SECTION ─── */
+.ai-input-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.ai-input {
+  flex: 1;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 14px;
+  color: var(--ink);
+  background: var(--cream);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.ai-input:focus { border-color: var(--forest3); box-shadow: 0 0 0 3px rgba(58,122,97,0.12); background: #fff; }
+.ai-btn {
+  padding: 12px 22px;
+  background: var(--forest);
+  color: var(--cream);
+  border: none;
+  border-radius: 10px;
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  white-space: nowrap;
+}
+.ai-btn:hover { background: var(--forest2); transform: translateY(-1px); }
+.ai-btn:active { transform: scale(0.97); }
+
+.ai-response {
+  background: var(--cream);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--forest3);
+  border-radius: 10px;
+  padding: 16px 20px;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--ink2);
+  min-height: 60px;
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+.ai-response.visible { display: block; }
+@keyframes fadeIn { from{opacity:0}to{opacity:1} }
+
+.ai-typing {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+}
+.ai-typing span {
+  width: 7px; height: 7px;
+  background: var(--muted);
+  border-radius: 50%;
+  animation: bounce 1.2s ease-in-out infinite;
+}
+.ai-typing span:nth-child(2){animation-delay:.2s}
+.ai-typing span:nth-child(3){animation-delay:.4s}
+@keyframes bounce{0%,80%,100%{transform:scale(0.6)}40%{transform:scale(1)}}
+
+.quick-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.quick-pill {
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  font-size: 12px;
+  color: var(--ink2);
+  cursor: pointer;
+  background: var(--cream);
+  transition: all 0.2s;
+  font-weight: 400;
+}
+.quick-pill:hover { background: var(--forest); color: var(--cream); border-color: var(--forest); }
+
+/* ─── FOOTER ─── */
+.footer {
+  text-align: center;
+  padding: 32px 0 16px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 300;
+}
+
+/* ─── PROGRESS BAR ─── */
+.progress-bar {
+  height: 4px;
+  background: var(--cream2);
+  border-radius: 100px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--forest3), var(--gold));
+  border-radius: 100px;
+  width: 0%;
+  transition: width 1.5s ease;
+}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:640px) {
+  .inputs-layout { grid-template-columns: 1fr; }
+  .charts-grid { grid-template-columns: 1fr; }
+  .ai-input-row { flex-direction: column; }
+  .ai-btn { width: 100%; }
+  .hero h1 { font-size: 38px; }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--cream); }
+::-webkit-scrollbar-thumb { background: var(--cream2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-logo">
+    <div class="fire-icon">🔥</div>
+    FIRE
+  </div>
+  <div class="topbar-tag">India Edition</div>
+</div>
+
+<div class="main">
+
+  <!-- HERO -->
+  <div class="hero" style="animation:slideUp .3s ease both;">
+    <h1>Find your<br><em>freedom number.</em></h1>
+    <p>Financial Independence, Retire Early. Tell us about your life, and we'll tell you when you can stop working.</p>
+  </div>
+
+  <!-- INPUT CARD -->
+  <div class="card">
+    <div class="section-label">Step 1 — Your Profile</div>
+
+    <div class="inputs-layout">
+
+      <!-- LEFT: Personal + Monthly Expenses -->
+      <div>
+        <div class="input-section-title">About You</div>
+        <div class="field-group">
+          <div class="field">
+            <label>Current Age</label>
+            <div class="field-row">
+              <span class="field-prefix">🎂</span>
+              <input id="age" type="number" value="25" placeholder="e.g. 25">
+            </div>
+          </div>
+          <div class="field">
+            <label>Current Savings / Corpus</label>
+            <div class="field-row">
+              <span class="field-prefix">₹</span>
+              <input id="savings" type="number" value="200000" placeholder="e.g. 2,00,000">
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;">
+          <div class="input-section-title">Monthly Expenses</div>
+          <div class="sub-inputs">
+            <div class="sub-field">
+              <span class="sub-label"><span class="sub-dot" style="background:#c1440e"></span>Food & Groceries</span>
+              <input class="sub-input exp-sub" type="number" id="exp_food" value="8000" oninput="updateExpenseTotal()">
+            </div>
+            <div class="sub-field">
+              <span class="sub-label"><span class="sub-dot" style="background:#2d5e4e"></span>Rent / EMI</span>
+              <input class="sub-input exp-sub" type="number" id="exp_rent" value="10000" oninput="updateExpenseTotal()">
+            </div>
+            <div class="sub-field">
+              <span class="sub-label"><span class="sub-dot" style="background:#c9933a"></span>Transport</span>
+              <input class="sub-input exp-sub" type="number" id="exp_transport" value="3000" oninput="updateExpenseTotal()">
+            </div>
+            <div class="sub-field">
+              <span class="sub-label"><span class="sub-dot" style="background:#6b8f6e"></span>Health & Insurance</span>
+              <input class="sub-input exp-sub" type="number" id="exp_health" value="2000" oninput="updateExpenseTotal()">
+            </div>
+            <div class="sub-field">
+              <span class="sub-label"><span class="sub-dot" style="background:#7b68a0"></span>Entertainment</span>
+              <input class="sub-input exp-sub" type="number" id="exp_ent" value="3000" oninput="updateExpenseTotal()">
+            </div>
+            <div class="sub-field">
+              <span class="sub-label"><span class="sub-dot" style="background:#a07850"></span>Miscellaneous</span>
+              <input class="sub-input exp-sub" type="number" id="exp_misc" value="4000" oninput="updateExpenseTotal()">
+            </div>
+          </div>
+          <div class="total-row">
+            <span class="total-label">Total Monthly Expense</span>
+            <span class="total-val" id="expenseTotal">₹30,000</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Monthly Savings / Investments -->
+      <div>
+        <div class="input-section-title">Monthly Investments</div>
+        <div class="sub-inputs">
+          <div class="sub-field">
+            <span class="sub-label"><span class="sub-dot" style="background:#1e4035"></span>SIP (Mutual Funds)</span>
+            <input class="sub-input inv-sub" type="number" id="inv_sip" value="8000" oninput="updateInvestTotal()">
+          </div>
+          <div class="sub-field">
+            <span class="sub-label"><span class="sub-dot" style="background:#c9933a"></span>Gold / Sovereign Bond</span>
+            <input class="sub-input inv-sub" type="number" id="inv_gold" value="2000" oninput="updateInvestTotal()">
+          </div>
+          <div class="sub-field">
+            <span class="sub-label"><span class="sub-dot" style="background:#3a7a61"></span>Fixed Deposit (FD)</span>
+            <input class="sub-input inv-sub" type="number" id="inv_fd" value="3000" oninput="updateInvestTotal()">
+          </div>
+          <div class="sub-field">
+            <span class="sub-label"><span class="sub-dot" style="background:#c1440e"></span>PPF / EPF</span>
+            <input class="sub-input inv-sub" type="number" id="inv_ppf" value="1500" oninput="updateInvestTotal()">
+          </div>
+          <div class="sub-field">
+            <span class="sub-label"><span class="sub-dot" style="background:#5b8a8f"></span>NPS</span>
+            <input class="sub-input inv-sub" type="number" id="inv_nps" value="500" oninput="updateInvestTotal()">
+          </div>
+          <div class="sub-field">
+            <span class="sub-label"><span class="sub-dot" style="background:#8f5b5b"></span>Stocks / ETF</span>
+            <input class="sub-input inv-sub" type="number" id="inv_stocks" value="0" oninput="updateInvestTotal()">
+          </div>
+        </div>
+        <div class="total-row" style="background:var(--terra);">
+          <span class="total-label">Total Monthly Investment</span>
+          <span class="total-val" id="investTotal">₹15,000</span>
+        </div>
+
+        <div style="margin-top:20px;">
+          <div class="input-section-title" style="margin-bottom:12px;">Assumptions</div>
+          <div class="field-group">
+            <div class="field">
+              <label>Expected Return Rate (%)</label>
+              <div class="field-row">
+                <span class="field-prefix">%</span>
+                <input id="return_rate" type="number" value="12" placeholder="12">
+              </div>
+            </div>
+            <div class="field">
+              <label>Inflation Rate (%)</label>
+              <div class="field-row">
+                <span class="field-prefix">%</span>
+                <input id="inflation_rate" type="number" value="6" placeholder="6">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="calc-btn" id="calcBtn" onclick="calculateFire()">
+      Calculate My Freedom Number 🔥
+    </button>
+  </div>
+
+  <!-- RESULT PANEL -->
+  <div class="card result-panel" id="resultPanel">
+    <div class="section-label">Step 2 — Your FIRE Report</div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="result-hero" id="resultHero"></div>
+
+    <div class="charts-grid">
+      <div>
+        <div class="card-title" style="font-size:17px;margin-bottom:16px;">Corpus Growth vs Target</div>
+        <div class="chart-wrap">
+          <canvas id="growthChart"></canvas>
+        </div>
+      </div>
+      <div>
+        <div class="card-title" style="font-size:17px;margin-bottom:16px;">Where your money goes</div>
+        <div class="chart-wrap" style="height:240px;">
+          <canvas id="allocationChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MARKET SECTION -->
+  <div class="card">
+    <div class="section-label">Live Market</div>
+    <div class="card-title">Nifty 50 — Market Pulse</div>
+    <div class="market-pills" id="marketPills"></div>
+    <div class="chart-wrap">
+      <canvas id="marketChart"></canvas>
+    </div>
+  </div>
+
+  <!-- AI ADVISOR -->
+  <div class="card">
+    <div class="section-label">Step 3 — AI Advisor</div>
+    <div class="card-title">Ask your financial twin</div>
+
+    <div class="quick-pills">
+      <span class="quick-pill" onclick="setQuestion('How much should I save to retire at 40?')">Retire at 40?</span>
+      <span class="quick-pill" onclick="setQuestion('Is SIP better than FD for FIRE?')">SIP vs FD?</span>
+      <span class="quick-pill" onclick="setQuestion('How does inflation affect my FIRE number?')">Inflation impact?</span>
+      <span class="quick-pill" onclick="setQuestion('What is the 4% rule?')">4% rule?</span>
+      <span class="quick-pill" onclick="setQuestion('How to invest in NPS for tax benefit?')">NPS & tax?</span>
+    </div>
+
+    <div class="ai-input-row">
+      <input class="ai-input" id="question" placeholder="e.g. Should I invest in index funds or active funds?">
+      <button class="ai-btn" onclick="askAI()">Ask →</button>
+    </div>
+
+    <div class="ai-response" id="aiResponse"></div>
+  </div>
+
+  <div class="footer">
+    Built for India. All projections are estimates — consult a SEBI-registered advisor for personal advice.<br>
+    <span style="opacity:0.5;">FIRE Calculator · India Edition · 2025</span>
+  </div>
+
+</div>
+
+<script>
+const BASE_URL = "http://127.0.0.1:8000";
+let growthChartInstance = null;
+let allocChartInstance = null;
+let marketChartInstance = null;
+
+// ─── Format helpers ─────────────────────────────────────────────────────────
+function fmt(n) {
+  if (n >= 10000000) return '₹' + (n/10000000).toFixed(2) + ' Cr';
+  if (n >= 100000)   return '₹' + (n/100000).toFixed(2) + ' L';
+  return '₹' + n.toLocaleString('en-IN');
+}
+
+function fmtInput(n) {
+  return '₹' + Number(n).toLocaleString('en-IN');
+}
+
+// ─── Totals ──────────────────────────────────────────────────────────────────
+function updateExpenseTotal() {
+  const ids = ['exp_food','exp_rent','exp_transport','exp_health','exp_ent','exp_misc'];
+  const total = ids.reduce((s,id) => s + (Number(document.getElementById(id).value)||0), 0);
+  document.getElementById('expenseTotal').textContent = fmtInput(total);
+  return total;
+}
+
+function updateInvestTotal() {
+  const ids = ['inv_sip','inv_gold','inv_fd','inv_ppf','inv_nps','inv_stocks'];
+  const total = ids.reduce((s,id) => s + (Number(document.getElementById(id).value)||0), 0);
+  document.getElementById('investTotal').textContent = fmtInput(total);
+  return total;
+}
+
+// ─── Chart defaults ──────────────────────────────────────────────────────────
+Chart.defaults.font.family = "'Instrument Sans', sans-serif";
+Chart.defaults.color = '#8a7c6e';
+
+function commonLineOpts(yLabel) {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode:'index', intersect:false },
+    plugins: {
+      legend: { labels: { usePointStyle:true, pointStyleWidth:8, padding:16, font:{size:12} } },
+      tooltip: { backgroundColor:'#1a1410', titleColor:'#f5f0e8', bodyColor:'#c4b8a8', cornerRadius:8, padding:12,
+        callbacks: { label: ctx => ` ${ctx.dataset.label}: ${fmt(ctx.parsed.y)}` }
+      }
+    },
+    scales: {
+      x: { grid:{color:'rgba(26,20,16,0.05)'}, ticks:{font:{size:11}} },
+      y: { grid:{color:'rgba(26,20,16,0.05)'}, ticks:{font:{size:11}, callback:v=>fmt(v)} }
+    }
+  };
+}
+
+// ─── CALCULATE FIRE ──────────────────────────────────────────────────────────
+async function calculateFire() {
+  const monthly_expenses = updateExpenseTotal();
+  const monthly_investment = updateInvestTotal();
+  const age = Number(document.getElementById('age').value);
+  const savings = Number(document.getElementById('savings').value);
+  const return_rate = Number(document.getElementById('return_rate').value)||12;
+  const inflation = Number(document.getElementById('inflation_rate').value)||6;
+
+  const btn = document.getElementById('calcBtn');
+  btn.textContent = 'Calculating… ✨';
+  btn.classList.add('loading');
+
+  const data = { age, monthly_expenses, savings, monthly_investment, return_rate, inflation };
+
+  try {
+    const res = await fetch(BASE_URL + "/fire", {
+      method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(data)
+    });
+    const result = await res.json();
+    displayResults(result, data);
+    await loadGrowthChart(data);
+  } catch(e) {
+    // Demo mode — simulate results locally
+    simulateResults(data);
+  }
+
+  btn.textContent = 'Recalculate 🔥';
+  btn.classList.remove('loading');
+}
+
+function simulateResults(data) {
+  const {age, monthly_expenses, savings, monthly_investment, return_rate=12, inflation=6} = data;
+  const r = (return_rate/100)/12;
+  const fireTarget = monthly_expenses * 12 * 25;
+  let corpus = savings;
+  let yr = 0;
+  while(corpus < fireTarget && yr < 60) {
+    for(let m=0;m<12;m++) corpus = corpus*(1+r) + monthly_investment;
+    yr++;
+  }
+  const result = { fire_age: age+yr, years_to_fire: yr, fire_corpus: fireTarget, projected_corpus: corpus };
+  displayResults(result, data);
+  simulateGrowthChart(data, yr, fireTarget);
+}
+
+function displayResults(result, data) {
+  const panel = document.getElementById('resultPanel');
+  panel.classList.add('visible');
+  panel.scrollIntoView({behavior:'smooth', block:'start'});
+
+  const pct = Math.min(100, Math.round((result.years_to_fire / 40) * 100));
+  setTimeout(() => { document.getElementById('progressFill').style.width = (100-pct+10)+'%'; }, 100);
+
+  const fireCorpus = result.fire_corpus || (data.monthly_expenses * 12 * 25);
+  const projCorpus = result.projected_corpus || 0;
+
+  document.getElementById('resultHero').innerHTML = `
+    <div class="result-stat featured">
+      <div class="stat-label">FIRE Age</div>
+      <div class="stat-val">${result.fire_age}</div>
+      <div class="stat-sub">Your freedom year</div>
+    </div>
+    <div class="result-stat">
+      <div class="stat-label">Years to FIRE</div>
+      <div class="stat-val" style="color:var(--terra)">${result.years_to_fire}</div>
+      <div class="stat-sub">from today</div>
+    </div>
+    <div class="result-stat">
+      <div class="stat-label">FIRE Corpus Needed</div>
+      <div class="stat-val" style="font-size:22px;color:var(--forest)">${fmt(fireCorpus)}</div>
+      <div class="stat-sub">25× annual expense</div>
+    </div>
+    <div class="result-stat">
+      <div class="stat-label">Monthly Saving Rate</div>
+      <div class="stat-val" style="font-size:26px;color:var(--gold)">${Math.round((data.monthly_investment/(data.monthly_expenses+data.monthly_investment))*100)}%</div>
+      <div class="stat-sub">of income invested</div>
+    </div>
+  `;
+
+  drawAllocationChart(data);
+}
+
+function simulateGrowthChart(data, years, fireTarget) {
+  const {age, savings, monthly_investment, return_rate=12} = data;
+  const r = (return_rate/100)/12;
+  const ages=[], corpus=[], target=[];
+  let c = savings;
+  for(let yr=0;yr<=years+5;yr++) {
+    ages.push(age+yr);
+    corpus.push(Math.round(c));
+    target.push(Math.round(fireTarget));
+    for(let m=0;m<12;m++) c = c*(1+r) + monthly_investment;
+  }
+  drawGrowthChart(ages, corpus, target);
+}
+
+async function loadGrowthChart(data) {
+  try {
+    const res = await fetch(BASE_URL + "/graph/growth", {
+      method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(data)
+    });
+    const graph = await res.json();
+    drawGrowthChart(graph.age, graph.corpus, graph.target);
+  } catch {
+    simulateGrowthChart(data, Number(document.getElementById('age').value)||25, data.monthly_expenses*12*25);
+  }
+}
+
+function drawGrowthChart(ages, corpus, target) {
+  if (growthChartInstance) growthChartInstance.destroy();
+  growthChartInstance = new Chart(document.getElementById('growthChart'), {
+    type:'line',
+    data:{
+      labels: ages,
+      datasets:[
+        { label:'Your Corpus', data:corpus, borderColor:'#2d5e4e', backgroundColor:'rgba(45,94,78,0.08)',
+          borderWidth:2.5, pointRadius:0, fill:true, tension:0.4 },
+        { label:'FIRE Target', data:target, borderColor:'#c1440e', borderWidth:2,
+          borderDash:[6,4], pointRadius:0, fill:false, tension:0 }
+      ]
+    },
+    options: commonLineOpts('Corpus')
+  });
+}
+
+function drawAllocationChart(data) {
+  if (allocChartInstance) allocChartInstance.destroy();
+  const expLabels = ['Food','Rent','Transport','Health','Entertainment','Misc'];
+  const expData = [
+    Number(document.getElementById('exp_food').value)||0,
+    Number(document.getElementById('exp_rent').value)||0,
+    Number(document.getElementById('exp_transport').value)||0,
+    Number(document.getElementById('exp_health').value)||0,
+    Number(document.getElementById('exp_ent').value)||0,
+    Number(document.getElementById('exp_misc').value)||0,
+  ];
+  const invLabels = ['SIP','Gold','FD','PPF','NPS','Stocks'];
+  const invData = [
+    Number(document.getElementById('inv_sip').value)||0,
+    Number(document.getElementById('inv_gold').value)||0,
+    Number(document.getElementById('inv_fd').value)||0,
+    Number(document.getElementById('inv_ppf').value)||0,
+    Number(document.getElementById('inv_nps').value)||0,
+    Number(document.getElementById('inv_stocks').value)||0,
+  ];
+  const allLabels = [...expLabels.map(l=>'Exp: '+l), ...invLabels.map(l=>'Inv: '+l)];
+  const allData = [...expData, ...invData];
+  const colors = ['#c1440e','#1e4035','#c9933a','#6b8f6e','#7b68a0','#a07850',
+                  '#2d5e4e','#d4a030','#3a7a61','#5b4a8c','#5b8a8f','#8f5b5b'];
+
+  allocChartInstance = new Chart(document.getElementById('allocationChart'), {
+    type:'doughnut',
+    data:{
+      labels: allLabels,
+      datasets:[{ data:allData, backgroundColor:colors, borderWidth:2, borderColor:'#fff',
+        hoverBorderWidth:3, hoverOffset:6 }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false, cutout:'62%',
+      plugins:{
+        legend:{ position:'right', labels:{ usePointStyle:true, pointStyleWidth:8, padding:10, font:{size:11} } },
+        tooltip:{ backgroundColor:'#1a1410', titleColor:'#f5f0e8', bodyColor:'#c4b8a8', cornerRadius:8, padding:10,
+          callbacks:{ label: ctx => ` ${ctx.label}: ${fmt(ctx.raw)}` }
+        }
+      }
+    }
+  });
+}
+
+// ─── MARKET ──────────────────────────────────────────────────────────────────
+async function loadMarket() {
+  try {
+    const res = await fetch(BASE_URL + "/market");
+    const data = await res.json();
+    drawMarket(data.data.dates, data.data.prices, data.data.moving_avg_7);
+  } catch {
+    simulateMarket();
+  }
+}
+
+function simulateMarket() {
+  const days = 30;
+  const dates = [], prices = [], ma = [];
+  let p = 22500;
+  for(let i=0;i<days;i++) {
+    const d = new Date(); d.setDate(d.getDate()-days+i);
+    dates.push(d.toLocaleDateString('en-IN',{day:'2-digit',month:'short'}));
+    p += (Math.random()-0.48)*120;
+    prices.push(Math.round(p));
+  }
+  for(let i=0;i<days;i++) {
+    const slice = prices.slice(Math.max(0,i-6),i+1);
+    ma.push(Math.round(slice.reduce((a,b)=>a+b,0)/slice.length));
+  }
+  const last = prices[prices.length-1], first = prices[0];
+  const change = ((last-first)/first*100).toFixed(2);
+  const up = last>=first;
+
+  document.getElementById('marketPills').innerHTML = `
+    <span class="pill ${up?'pill-up':'pill-down'}">${up?'▲':'▼'} ${Math.abs(change)}% (30d)</span>
+    <span class="pill pill-up">Nifty: ${last.toLocaleString('en-IN')}</span>
+  `;
+  drawMarket(dates, prices, ma);
+}
+
+function drawMarket(dates, prices, ma) {
+  if (marketChartInstance) marketChartInstance.destroy();
+  marketChartInstance = new Chart(document.getElementById('marketChart'), {
+    type:'line',
+    data:{
+      labels:dates,
+      datasets:[
+        { label:'Nifty 50', data:prices, borderColor:'#1e4035', backgroundColor:'rgba(30,64,53,0.06)',
+          borderWidth:2, pointRadius:0, fill:true, tension:0.3 },
+        { label:'7-Day MA', data:ma, borderColor:'#c9933a', borderWidth:1.5,
+          borderDash:[4,4], pointRadius:0, fill:false, tension:0.3 }
+      ]
+    },
+    options:{
+      ...commonLineOpts('Price'),
+      plugins:{ ...commonLineOpts().plugins,
+        tooltip:{ backgroundColor:'#1a1410', titleColor:'#f5f0e8', bodyColor:'#c4b8a8', cornerRadius:8, padding:12,
+          callbacks:{ label: ctx => ` ${ctx.dataset.label}: ₹${Number(ctx.parsed.y).toLocaleString('en-IN')}` }
+        }
+      },
+      scales:{
+        x:{ grid:{color:'rgba(26,20,16,0.05)'}, ticks:{font:{size:11}, maxTicksLimit:8} },
+        y:{ grid:{color:'rgba(26,20,16,0.05)'}, ticks:{font:{size:11}, callback:v=>'₹'+v.toLocaleString('en-IN')} }
+      }
+    }
+  });
+}
+
+// ─── AI ADVISOR ──────────────────────────────────────────────────────────────
+function setQuestion(q) {
+  document.getElementById('question').value = q;
+  document.getElementById('question').focus();
+}
+
+async function askAI() {
+  const question = document.getElementById('question').value.trim();
+  if (!question) return;
+  const resp = document.getElementById('aiResponse');
+  resp.classList.add('visible');
+  resp.innerHTML = '<div class="ai-typing"><span></span><span></span><span></span></div>';
+
+  const data = {
+    age: Number(document.getElementById('age').value)||25,
+    monthly_expenses: updateExpenseTotal(),
+    savings: Number(document.getElementById('savings').value)||200000,
+    question
+  };
+
+  try {
+    const res = await fetch(BASE_URL + "/chat", {
+      method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(data)
+    });
+    const result = await res.json();
+    resp.textContent = result.answer;
+  } catch {
+    resp.textContent = "I couldn't reach the server — but here's a quick tip: The 4% rule suggests you need 25× your annual expenses as your FIRE corpus. With a ₹" + updateExpenseTotal().toLocaleString('en-IN') + "/month expense, your FIRE number is approximately " + fmt(updateExpenseTotal()*12*25) + ". Stay consistent with your investments and increase your SIP by 10% each year!";
+  }
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+updateExpenseTotal();
+updateInvestTotal();
+loadMarket();
+
+// Allow Enter key in AI input
+document.addEventListener('DOMContentLoaded', ()=>{
+  document.getElementById('question').addEventListener('keydown', e => { if(e.key==='Enter') askAI(); });
+});
+</script>
+</body>
+</html>
